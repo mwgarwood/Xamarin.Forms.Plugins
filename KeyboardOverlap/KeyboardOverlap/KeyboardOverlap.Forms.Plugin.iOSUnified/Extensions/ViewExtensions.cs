@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UIKit;
 using Foundation;
 using CoreGraphics;
@@ -16,13 +16,15 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 		/// <returns>
 		/// A <see cref="UIView"/> that is the first responder or null if there is no first responder
 		/// </returns>
-		public static UIView FindFirstResponder (this UIView view)
+		public static UIView FindFirstResponder(this UIView view)
 		{
-			if (view.IsFirstResponder) {
+			if (view.IsFirstResponder)
+			{
 				return view;
 			}
-			foreach (UIView subView in view.Subviews) {
-				var firstResponder = subView.FindFirstResponder ();
+			foreach (UIView subView in view.Subviews)
+			{
+				var firstResponder = subView.FindFirstResponder();
 				if (firstResponder != null)
 					return firstResponder;
 			}
@@ -35,10 +37,10 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 		/// <returns>The view relative bottom.</returns>
 		/// <param name="view">View.</param>
 		/// <param name="rootView">Root view.</param>
-		public static double GetViewRelativeBottom (this UIView view, UIView rootView)
+		public static double GetViewRelativeBottom(this UIView view, UIView rootView)
 		{
-			var viewRelativeCoordinates = rootView.ConvertPointFromView (view.Frame.Location, view);
-			var activeViewRoundedY = Math.Round (viewRelativeCoordinates.Y, 2);
+			var viewRelativeCoordinates = rootView.ConvertPointFromView(view.Frame.Location, view);
+			var activeViewRoundedY = Math.Round(viewRelativeCoordinates.Y, 2);
 
 			return activeViewRoundedY + view.Frame.Height;
 		}
@@ -50,13 +52,13 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 		/// <param name="activeView">Active view.</param>
 		/// <param name="rootView">Root view.</param>
 		/// <param name="keyboardFrame">Keyboard frame.</param>
-		public static bool IsKeyboardOverlapping (this UIView activeView, UIView rootView, CGRect keyboardFrame)
+		public static bool IsKeyboardOverlapping(this UIView activeView, UIView rootView, CGRect keyboardFrame)
 		{
-			var activeViewBottom = activeView.GetViewRelativeBottom (rootView);
+			var activeViewBottom = activeView.GetViewRelativeBottom(rootView);
 			var pageHeight = rootView.Frame.Height;
 			var keyboardHeight = keyboardFrame.Height;
 
-			var isOverlapping = activeViewBottom >= (pageHeight - keyboardHeight);
+			var isOverlapping = activeViewBottom > (pageHeight - keyboardHeight - rootView.Frame.Y);
 
 			return isOverlapping;
 		}
