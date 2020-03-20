@@ -14,7 +14,7 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 	{
 		NSObject _keyboardHideObserver;
 		NSObject _keyboardChangeObserver;
-		private bool _pageWasShiftedUp;
+		private double _pageShift = 0;
 		private double _activeViewBottom;
 
 		public static void Init()
@@ -90,11 +90,8 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 			if (!isOverlapping)
 				return;
 
-			if (isOverlapping)
-			{
-				_activeViewBottom = activeView.GetViewRelativeBottom(View);
-				ShiftPageUp(keyboardFrame.Height, _activeViewBottom);
-			}
+			_activeViewBottom = activeView.GetViewRelativeBottom(View);
+			ShiftPageUp(keyboardFrame.Height, _activeViewBottom);
 		}
 
 		protected virtual void OnKeyboardHide(object sender, UIKit.UIKeyboardEventArgs args)
@@ -103,7 +100,7 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 				return;
 
 			var keyboardFrame = args.FrameEnd;
-			if (_pageWasShiftedUp)
+			if (_pageShift != 0)
 			{
 				ShiftPageDown(keyboardFrame.Height, _activeViewBottom);
 			}
@@ -112,30 +109,27 @@ namespace KeyboardOverlap.Forms.Plugin.iOSUnified
 		private void ShiftPageUp(nfloat keyboardHeight, double activeViewBottom)
 		{
 			var pageFrame = Element.Bounds;
-
-			var newY = pageFrame.Y + CalculateShiftByAmount(pageFrame.Height, keyboardHeight, activeViewBottom);
+            _pageShift = CalculateShiftByAmount(pageFrame.Height, keyboardHeight, activeViewBottom);
+			var newY = pageFrame.Y + _pageShift;
 
 			Element.LayoutTo(new Rectangle(pageFrame.X, newY,
 				pageFrame.Width, pageFrame.Height));
-
-			_pageWasShiftedUp = true;
 		}
 
 		private void ShiftPageDown(nfloat keyboardHeight, double activeViewBottom)
 		{
 			var pageFrame = Element.Bounds;
 
-			var newY = pageFrame.Y - CalculateShiftByAmount(pageFrame.Height, keyboardHeight, activeViewBottom);
+			var newY = pageFrame.Y - _pageShift;
+            _pageShift = 0;
 
 			Element.LayoutTo(new Rectangle(pageFrame.X, newY,
 				pageFrame.Width, pageFrame.Height));
-
-			_pageWasShiftedUp = false;
 		}
 
 		private double CalculateShiftByAmount(double pageHeight, nfloat keyboardHeight, double activeViewBottom)
 		{
-			return (pageHeight - activeViewBottom) - keyboardHeight;
+			return (pageHeight - activeViewBottom - _pageShift) - keyboardHeight;
 		}
 	}
 }
